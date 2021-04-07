@@ -1,26 +1,36 @@
 package oauth;
 
+import http.Server;
+
 public class SpotifyOAuth {
     private final static String clientID = "602b13b0f75e4ef989e7504dcff95673";
-    private final static String clientSecret = "a4a125c41835452e8d2d0494046df555";
-    private static String access_token;
-    private static String redirect_url = "https://www.example.com";
+    private static final String redirect_url = "http://localhost:" + Server.SOCKET_PORT;
 
+    /**
+     * Token create string.
+     *  OAuth 2.0
+     * @return string with token to authorize on Spotify server
+     */
     public static String tokenCreate() {
-        StringBuilder token = new StringBuilder("https://accounts.spotify.com/authorize");
-        token.append("?client_id=");
-        token.append(clientID);
-        token.append("&redirect_uri=");
-        token.append(redirect_url);
-        token.append("&response_type=code");
-        return token.toString();
+        return new StringBuilder()
+                .append("https://accounts.spotify.com/authorize")
+                .append("?client_id=")
+                .append(clientID)
+                .append("&redirect_uri=")
+                .append(redirect_url)
+                .append("&response_type=code")
+                .toString();
     }
 
-    public static String getClientID() {
-        return clientID;
+    public static String postBody() {
+      StringBuilder post = new StringBuilder();
+      post.append("grant_type=authorization_code&code=")
+              .append(Server.getCode())
+              .append("&")
+              .append(redirect_url);
+      return post.toString();
     }
 
-    public static String getClientSecret() {
-        return clientSecret;
-    }
+
+
 }

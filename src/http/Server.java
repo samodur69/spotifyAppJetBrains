@@ -2,15 +2,17 @@ package http;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.http.*;
 import com.sun.net.httpserver.*;
 
 
 public class Server {
-    //HttpServer server = null;
-    // написать конструктор в котором при создании объекта сервер запускается сервер
-    // пока запуск статическим методом
+    private static String query = "";
+    public final static String SOCKET_PORT = "8081";
+//    private HttpServer server;
+
+    public Server() {
+//        this.start();
+    }
 
     public static void start() {
         try {
@@ -19,21 +21,39 @@ public class Server {
             server.createContext("/",
                     new HttpHandler() {
                         @Override
-                        public void handle(HttpExchange httpExchange) throws IOException {
-                            String hello = "hello, world";
-                            httpExchange.sendResponseHeaders(200, hello.length());
-                            httpExchange.getResponseBody().write(hello.getBytes());
-                            httpExchange.getResponseBody().close();
+                        public void handle(HttpExchange exchange) throws IOException {
+                            String codeReceived = "Got the code. Return back to your program.";
+                            String codeNotFound = "Authorization code not found. Try again.";
+                            query = exchange.getRequestURI().getQuery();
+                            if (query == null) {
+                                System.out.println("no code");
+                                exchange.sendResponseHeaders(200, codeNotFound.length());
+                                exchange.getResponseBody().write(codeNotFound.getBytes());
+                                query = "";
+                            } else {
+                                System.out.println("code received");
+                                System.out.println(query);
+                                exchange.sendResponseHeaders(200, codeReceived.length());
+                                exchange.getResponseBody().write(codeReceived.getBytes());
+                            }
+                            exchange.getResponseBody().close();
+//                            System.out.println(query);
                         }
                     });
             server.start();
+//            server.stop(100);
         } catch (IOException e) {
-            System.out.println("Troubles with start server at .......");
             e.printStackTrace();
         }
     }
+    public static void stopServer() {
+    }
 
-    public static void stopServer () {
-
+    public static String getCode() {
+        String[] code = query.split("=");
+        if (code.length == 2) {
+            return code[1];
+        }
+        return null;
     }
 }
